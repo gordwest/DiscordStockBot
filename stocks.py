@@ -39,10 +39,11 @@ def stockData(symbol):
     results = response.json()
     return results
 
+def currency(number):
+    return '$' + "{:.2f}".format(float(number))
 
-STONK = 'Shopify'
-
-json_formatted_str = json.dumps(stockData(symbolSearch(STONK)), indent=2)
-print(json_formatted_str)
+# data = stockData(symbolSearch('shopify'))
+# print(top5Search('shopify'))
+# print(data['Global Quote'])
 
 

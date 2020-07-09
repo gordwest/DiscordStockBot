@@ -10,7 +10,7 @@ def addPortfolio(name, owner, server):
     """
     params
         name: string - desired name of portfolio
-        owner: int - the user creating the portfolio (ID)
+        owner: string - owner of the portfolio (discord name)
         server: int - server that the user resides on (ID)
     return
         resulting message
@@ -20,7 +20,7 @@ def addPortfolio(name, owner, server):
         cnxn.commit()
         return '{} has been created.'.format(name)
     except:
-        return '{} Error! Either this portfolio name is taken or you already have one created.'
+        return 'Error! This name is taken or you already have a portfolio.'
 
 # remove a portfolio from the database
 def deletePortfolio(name, owner):
@@ -28,12 +28,13 @@ def deletePortfolio(name, owner):
     deletes a given portfolio from the sql table
     params
         name: string - name of portfolio
+        owner: string - owner of the portfolio (discord name)
     """
     cursor.execute("DELETE FROM PORTFOLIOS WHERE PORTFOLIOS.NAME = '{}' AND PORTFOLIOS.OWNER = '{}';".format(name, owner))
     cnxn.commit()
  
 # list all current portfolios
-def allPortfolios():
+def getAllPortfolios():
     """
     return all portfolios from the sql table
     returns

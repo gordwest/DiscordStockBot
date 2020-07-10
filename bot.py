@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord, config, sql
 from stocksAPI import currencyFormat, getStockData, symbolSearch
-from sql import addPortfolio, getAllPortfolios, deletePortfolio
+from sql import addPortfolio, getAllPortfolios, deletePortfolio, searchPortfolio
 
 bot = commands.Bot(command_prefix='!')
 bot.remove_command('help')
@@ -24,8 +24,7 @@ async def help(ctx):
 
 @bot.command()
 async def search(ctx, keyword:str):
-    """
-    Get information of a stock
+    """Get information of a stock
     params
         keyword: string - search keyword to find stock
     returns
@@ -52,8 +51,7 @@ async def search(ctx, keyword:str):
 
 @bot.command()
 async def create(ctx, name):
-    """
-    creates a portfolio with a given name - store in SQL db
+    """Creates a portfolio with a given name - store in SQL db
     params
         name: string - name of the portfolio you are creating
     return
@@ -64,19 +62,24 @@ async def create(ctx, name):
 
 @bot.command()
 async def delete(ctx, name):
-    """
-    deletes your current portfolio
+    """Deletes a given portfolio if the author is the owner
     param
         name: string - name
     """
-    deletePortfolio(name, ctx.author)
-    response = '{} has been deleted.'.format(name)
+    results = searchPortfolio(name) # search for portfolio name
+    if len(results) == 1:
+        if results[0][1] == str(ctx.author): # check if author is the owner
+            deletePortfolio(name, ctx.author)
+            response = '{} has been deleted.'.format(name)
+        else: # portfolio exists and author is not owner
+            response = "Error! Not allowed to delete another user's portfolio." 
+    else: # portfolio name doesn't exist
+        response = 'Error! Please verify the portfolio name.' 
     await ctx.send(response)
 
 @bot.command()
 async def all(ctx):
-    """
-    Displays all the portfolios on the server
+    """Displays all the portfolios on the server
     returns
         response: string - list of all portfolios from the current server
     """
@@ -84,13 +87,8 @@ async def all(ctx):
 
     msg = discord.Embed(title='Current Portfolios', color=0x000000)
     for portfolio in allPortfolios:
-        msg.add_field(name=portfolio[0], value=ctx.author, inline=False)
+        msg.add_field(name=portfolio[0], value=portfolio[1], inline=False)
     await ctx.send(embed = msg)
-
-@bot.command()
-async def open(ctx, name):
-    """displays the contents of a given portfolio - default is your portfolio"""
-    await ctx.send(response)
 
 @bot.command()
 async def remove(ctx, stock):
@@ -102,5 +100,9 @@ async def add(ctx, stock):
     """adds a given stock from your portfolio"""
     await ctx.send(response)
 
+@bot.command()
+async def open(ctx, name):
+    """displays the contents of a given portfolio - default is your portfolio"""
+    await ctx.send(response)
 
 bot.run(config.TOKEN)

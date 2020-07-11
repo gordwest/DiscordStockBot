@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord, config, sql
 from stocksAPI import currencyFormat, getStockData, symbolSearch
-from sql import addPortfolio, getAllPortfolios, deletePortfolio, searchPortfolio
+from sql import addPortfolio, getAllPortfolios, deletePortfolio, searchPortfolio, addStock, checkStock
 
 bot = commands.Bot(command_prefix='!')
 bot.remove_command('help')
@@ -19,7 +19,7 @@ async def help(ctx):
     msg.add_field(name="!delete <portfolio name>", value='Delete your portfolio', inline=False)
     msg.add_field(name="!add <stock symbol>", value='Add a stock to your portfolio', inline=False)
     msg.add_field(name="!remove <stock symbol>", value='Remove a stock from your portfolio', inline=False)
-    msg.add_field(name="!open <portfolio name>", value='Display contents of a portfolio', inline=False)
+    msg.add_field(name="!view <portfolio name>", value='Display contents of a portfolio', inline=False)
     await ctx.send(embed = msg)
 
 @bot.command()
@@ -57,7 +57,7 @@ async def create(ctx, name):
     return
         response: string - resulting output of the operation (success/failed)
     """
-    response = addPortfolio(name, ctx.author, 11213245)
+    response = addPortfolio(name, ctx.author)
     await ctx.send(response)
 
 @bot.command()
@@ -91,18 +91,36 @@ async def all(ctx):
     await ctx.send(embed = msg)
 
 @bot.command()
+async def add(ctx, stock):
+    """Adds a given stock to the author's portfolio
+    params
+        stock: string - stock to be added
+    """
+    try:
+        stock_symbol = symbolSearch(stock)['1. symbol'] # return stock symbol from author's search
+        try:
+            portfolioName = searchPortfolio(ctx.author)[0][0] # get name of the author's portfolio
+            if len(checkStock(portfolioName, stock_symbol)) == 0: # check if stock already exists in portfolio
+                addStock(portfolioName, stock_symbol) # add new row to stock table with author's portfolio and stock symbol
+                response = '{} has been added to {}'.format(stock_symbol, portfolioName)
+            else:
+                response = 'Error! This stock is already in your portfolio!'
+        except:
+            response = 'Error! You need a portfolio before you can add stocks!'
+    except:
+        response = "Error! I couldn't find that stock!"
+    await ctx.send(response)
+
+@bot.command()
 async def remove(ctx, stock):
     """removes a given stock from your portfolio"""
+    response = ''
     await ctx.send(response)
 
 @bot.command()
-async def add(ctx, stock):
-    """adds a given stock from your portfolio"""
-    await ctx.send(response)
-
-@bot.command()
-async def open(ctx, name):
+async def view(ctx, name):
     """displays the contents of a given portfolio - default is your portfolio"""
+    response = ''
     await ctx.send(response)
 
 bot.run(config.TOKEN)

@@ -9,10 +9,12 @@
 - Stock API: [Alphavantage.com](https://www.alphavantage.co/) (5 calls per min for free account)
 
 ### Features
-- Get info on a specific stock (ex. price, open, high, low, etc)
-- Users can create a portfolio that is stored in a sql database
+-  Get real time data for a specific stock from the API (price, open, high, low, etc)
+-  Create/delete portfolios (limit 1 per user)
+-  List all current portfolios on the server
+-  Add/remove stocks from their portfolio
+-  View the contents of a portfolio
 
 ### Goals
-- Add/remove stocks to their portfolio
-- Get info on their entire portfolio
-- Buy shares of a stock and then track your gain/loss
+- Buy/sell stock shares
+- Track the gains/losses of a portfolio

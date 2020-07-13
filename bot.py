@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord, config, sql
 from stocksAPI import currencyFormat, getStockData, symbolSearch
-from sql import addPortfolio, getAllPortfolios, deletePortfolio, searchPortfolio, addStock, checkStock
+from sql import addPortfolio, getAllPortfolios, deletePortfolio, searchPortfolio, addStock, checkStock, openPortfolio, removeStock, emptyPortfolio
 
 bot = commands.Bot(command_prefix='!')
 bot.remove_command('help')
@@ -24,7 +24,7 @@ async def help(ctx):
 
 @bot.command()
 async def search(ctx, keyword:str):
-    """Get information of a stock
+    """Get information for a given stock
     params
         keyword: string - search keyword to find stock
     returns
@@ -70,6 +70,7 @@ async def delete(ctx, name):
     if len(results) == 1:
         if results[0][1] == str(ctx.author): # check if author is the owner
             deletePortfolio(name, ctx.author)
+            emptyPortfolio(name) # remove all stocks from table that are linked to the portfolio
             response = '{} has been deleted.'.format(name)
         else: # portfolio exists and author is not owner
             response = "Error! Not allowed to delete another user's portfolio." 
@@ -112,15 +113,33 @@ async def add(ctx, stock):
     await ctx.send(response)
 
 @bot.command()
-async def remove(ctx, stock):
-    """removes a given stock from your portfolio"""
-    response = ''
-    await ctx.send(response)
+async def remove(ctx, stockSymbol):
+    """Removes a given stock from the author's portfolio
+    params
+        stock: string - stock symbol to be removed
+    """
+    #check if stock is in portfolio
+    portfolioName = searchPortfolio(ctx.author)[0][0] # get name of the author's portfolio
+    if len(checkStock(portfolioName, stockSymbol)) > 0: # check if stock is currently in portfolio
+        removeStock(stockSymbol, portfolioName) # execute sql query
+        msg = discord.Embed(title='{} has been removed from your portfolio.'.format(stockSymbol), color=0x000000)
+    else:
+        msg = discord.Embed(title='Error! {} is not in your portfolio.'.format(stockSymbol), color=0x000000)
+    await ctx.send(embed = msg)
 
 @bot.command()
-async def view(ctx, name):
-    """displays the contents of a given portfolio - default is your portfolio"""
-    response = ''
-    await ctx.send(response)
+async def view(ctx, portfolioName):
+    """Display the contents of a given portfolio - default is your portfolio
+    params
+        portfolioName: string - name of portfolio to query
+    """
+    stocks = openPortfolio(portfolioName) # query stocks from table
+    if len(stocks) > 0:
+        msg = discord.Embed(title=portfolioName, color=0x000000)
+        for stock in stocks:
+            msg.add_field(name=stock[0], value='0 Shares', inline=True) 
+    else:
+        msg = discord.Embed(title='This portfolio is emtpy!', color=0x000000)
+    await ctx.send(embed = msg)
 
 bot.run(config.TOKEN)

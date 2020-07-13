@@ -30,7 +30,7 @@ def deletePortfolio(name, owner):
         name: string - name of portfolio
         owner: string - owner of the portfolio (discord name)
     """
-    cursor.execute("DELETE FROM PORTFOLIOS WHERE PORTFOLIOS.NAME = '{}' AND PORTFOLIOS.OWNER = '{}';".format(name, owner))
+    cursor.execute("DELETE FROM PORTFOLIOS WHERE NAME = '{}' AND OWNER = '{}';".format(name, owner))
     cnxn.commit()
 
 def searchPortfolio(name):
@@ -40,7 +40,7 @@ def searchPortfolio(name):
         owner: string - owner of the portfolio (discord name)
     """
     portfolios = []
-    cursor.execute("SELECT Name, Owner FROM PORTFOLIOS WHERE PORTFOLIOS.NAME = '{}' or PORTFOLIOS.OWNER = '{}';".format(name, name))
+    cursor.execute("SELECT Name, Owner FROM PORTFOLIOS WHERE NAME = '{}' or OWNER = '{}';".format(name, name))
     row = cursor.fetchone() 
     while row: 
         portfolios.append(row)
@@ -72,16 +72,27 @@ def addStock(portfolio, stockSymbol):
     cursor.execute("INSERT INTO STOCKS (PORTFOLIO, STOCK) VALUES ('{}', '{}');".format(portfolio, stockSymbol)) # insert row into table
     cnxn.commit()
 
-# remove a stock from a portfolio
-def removeStock():
-    cursor.execute("")
-    cnxn.commit()
-    
-# list the contents of a portfolio
-def viewPortfolio():
-    cursor.execute("")
+def removeStock(stock, portfolioName):
+    """Removes a stock from a given portfolio
+    params
+        stock: string - symbol of stock to remove
+        portfolio: string - name of portfolio to use in query (author's portfolio)
+    """
+    cursor.execute("DELETE FROM STOCKS WHERE STOCK = '{}' AND PORTFOLIO = '{}';".format(stock, portfolioName))
     cnxn.commit()
 
+def openPortfolio(portfolio):
+    """Return all the stocks in a given portfolio
+    params
+        portfolio: string - name of portfolio to use in query
+    """
+    stocks = []
+    cursor.execute("SELECT STOCK FROM STOCKS WHERE PORTFOLIO = '{}'".format(portfolio))
+    row = cursor.fetchone() 
+    while row: 
+        stocks.append(row)
+        row = cursor.fetchone()
+    return stocks    
 
 def checkStock(portfolio, stockSymbol):
     """Check to see if a stock exists in a portfolio
@@ -99,4 +110,10 @@ def checkStock(portfolio, stockSymbol):
         row = cursor.fetchone()
     return stocks
 
-
+def emptyPortfolio(portfolioName):
+    """Deletes all stock records for a given portfolio (call when a user deletes their portfolio)
+    params
+        portfolioName: string - name of the author's portfolio
+    """
+    cursor.execute("DELETE FROM STOCKS WHERE PORTFOLIO = '{}';".format(portfolioName))
+    cnxn.commit()

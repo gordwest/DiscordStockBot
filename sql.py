@@ -7,8 +7,7 @@ cursor = cnxn.cursor()
 
 # create new portfolio in the database
 def addPortfolio(name, owner):
-    """
-    create a new portfolio in the sql database table
+    """Create a new portfolio in the sql database table
     params
         name: string - desired name of portfolio
         owner: string - owner of the portfolio (discord name)
@@ -24,8 +23,7 @@ def addPortfolio(name, owner):
 
 # remove a portfolio from the database
 def deletePortfolio(name, owner):
-    """
-    deletes a given portfolio from the sql table
+    """Deletes a given portfolio from the sql table
     params
         name: string - name of portfolio
         owner: string - owner of the portfolio (discord name)
@@ -38,6 +36,8 @@ def searchPortfolio(name):
     params
         name: string - name of portfolio
         owner: string - owner of the portfolio (discord name)
+    returns
+        portfolios: list - porfolios from the query output
     """
     portfolios = []
     cursor.execute("SELECT Name, Owner FROM PORTFOLIOS WHERE NAME = '{}' or OWNER = '{}';".format(name, name))
@@ -49,8 +49,7 @@ def searchPortfolio(name):
  
 # list all current portfolios
 def getAllPortfolios():
-    """
-    return all portfolios from the sql table
+    """Return all portfolios from the sql table
     returns
         portfolios: array - all portfolios in the sql table
     """
@@ -85,6 +84,8 @@ def openPortfolio(portfolio):
     """Return all the stocks in a given portfolio
     params
         portfolio: string - name of portfolio to use in query
+    returns
+        stocks: list - results from query
     """
     stocks = []
     cursor.execute("SELECT STOCK FROM STOCKS WHERE PORTFOLIO = '{}'".format(portfolio))

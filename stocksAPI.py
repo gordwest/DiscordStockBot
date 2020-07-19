@@ -2,8 +2,10 @@ import requests
 import json
 from config import API_KEY, URL
 
-# returns top 5 stock results from search result
+# not used
 def top5Search(keyword):
+    """ Search for a keyword and return the top 5 stock results
+    """
     params = {
         'function': 'SYMBOL_SEARCH',
         'keywords': keyword,
@@ -13,8 +15,14 @@ def top5Search(keyword):
     top5 = response.json()['bestMatches'][:5]
     return top5
 
-# return top search result (prioritizing TSX stocks)
-def symbolSearch(keyword):
+
+def stockSearch(keyword):
+    """ Search for a stock given a keyword and return the top search result (prioritizing TSX stocks)
+    params
+        keyword: string - what the user is trying to search
+    returns
+        JSON data for the stock from the searcdh results
+    """
     params = {
         'function': 'SYMBOL_SEARCH',
         'keywords': keyword,
@@ -29,10 +37,16 @@ def symbolSearch(keyword):
     return results[0]
 
 # return stock data for a given symbol
-def getStockData(symbol):
+def getStockData(stockSymbol):
+    """ Search for a stock given its symbol and return a dictionary of information for the result
+    params
+        stockSymbol: string - the symbol of a specific stock
+    returns
+        JSON data for the given stock
+    """
     params = {
         'function': 'GLOBAL_QUOTE',
-        'symbol': symbol,
+        'symbol': stockSymbol,
         'apikey': API_KEY
     }
     response = requests.request('GET', URL, params=params)
@@ -41,7 +55,6 @@ def getStockData(symbol):
 
 # format number to currency 
 def currencyFormat(number):
+    """
+    """
     return '$' + "{:.2f}".format(float(number))
-
-
-

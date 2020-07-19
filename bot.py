@@ -1,6 +1,6 @@
-from discord.ext import commands
 import discord, config, sql
-from stocksAPI import currencyFormat, getStockData, symbolSearch
+from discord.ext import commands
+from stocksAPI import currencyFormat, getStockData, stockSearch
 from sql import addPortfolio, getAllPortfolios, deletePortfolio, searchPortfolio, addStock, checkStock, openPortfolio, removeStock, emptyPortfolio
 
 bot = commands.Bot(command_prefix='!')
@@ -26,12 +26,12 @@ async def help(ctx):
 async def search(ctx, keyword:str):
     """Get information for a given stock
     params
-        keyword: string - search keyword to find stock
+        keyword: string - the keyword used to search for a stock
     returns
         response: all current information on stock (open, high, low, price, change %, etc..)
     """
     try:
-        stock_data = symbolSearch(keyword)
+        stock_data = stockSearch(keyword)
         quote_data = getStockData(stock_data['1. symbol'])
     except:
         await ctx.send("I couldn't find anything for '" + keyword + "'. Please try again with a different keyword.")
@@ -53,7 +53,7 @@ async def search(ctx, keyword:str):
 async def create(ctx, name):
     """Creates a portfolio with a given name - store in SQL db
     params
-        name: string - name of the portfolio you are creating
+        name: string - name of the portfolio you want to create
     return
         response: string - resulting output of the operation (success/failed)
     """
@@ -64,7 +64,7 @@ async def create(ctx, name):
 async def delete(ctx, name):
     """Deletes a given portfolio if the author is the owner
     param
-        name: string - name
+        name: string - name of the portfolio to delete
     """
     results = searchPortfolio(name) # search for portfolio name
     if len(results) == 1:
@@ -82,7 +82,7 @@ async def delete(ctx, name):
 async def all(ctx):
     """Displays all the portfolios on the server
     returns
-        response: string - list of all portfolios from the current server
+        response: msg - list of all portfolios from the current server
     """
     allPortfolios = getAllPortfolios()
 
@@ -95,10 +95,10 @@ async def all(ctx):
 async def add(ctx, stock):
     """Adds a given stock to the author's portfolio
     params
-        stock: string - stock to be added
+        stock: string - name of stock to search, adds the stock that is returned from the search
     """
     try:
-        stock_symbol = symbolSearch(stock)['1. symbol'] # return stock symbol from author's search
+        stock_symbol = stockSearch(stock)['1. symbol'] # return stock symbol from author's search
         try:
             portfolioName = searchPortfolio(ctx.author)[0][0] # get name of the author's portfolio
             if len(checkStock(portfolioName, stock_symbol)) == 0: # check if stock already exists in portfolio
@@ -116,7 +116,7 @@ async def add(ctx, stock):
 async def remove(ctx, stockSymbol):
     """Removes a given stock from the author's portfolio
     params
-        stock: string - stock symbol to be removed
+        stockSymbol: string - symbol of the stock that will be removed
     """
     #check if stock is in portfolio
     portfolioName = searchPortfolio(ctx.author)[0][0] # get name of the author's portfolio
@@ -128,8 +128,8 @@ async def remove(ctx, stockSymbol):
     await ctx.send(embed = msg)
 
 @bot.command()
-async def view(ctx, portfolioName):
-    """Display the contents of a given portfolio - default is your portfolio
+async def view(ctx, portfolioName): #*** Need to check if portfolio exists before saying it is empty!
+    """Display the contents of a given portfolio
     params
         portfolioName: string - name of portfolio to query
     """

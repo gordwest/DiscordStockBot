@@ -133,13 +133,17 @@ async def view(ctx, portfolioName): #*** Need to check if portfolio exists befor
     params
         portfolioName: string - name of portfolio to query
     """
-    stocks = openPortfolio(portfolioName) # query stocks from table
-    if len(stocks) > 0:
-        msg = discord.Embed(title=portfolioName, color=0x000000)
-        for stock in stocks:
-            msg.add_field(name=stock[0], value='0 Shares', inline=True) 
-    else:
-        msg = discord.Embed(title='This portfolio is emtpy!', color=0x000000)
+    results = searchPortfolio(name) # search for portfolio name
+    if len(results) == 1:
+        stocks = openPortfolio(portfolioName) # query stocks from table
+        if len(stocks) > 0:
+            msg = discord.Embed(title=portfolioName, color=0x000000)
+            for stock in stocks:
+                msg.add_field(name=stock[0], value='0 Shares', inline=True) 
+        else:
+            msg = discord.Embed(title='This portfolio is emtpy!', color=0x000000)
+    else: # portfolio doesn't exist
+        msg = discord.Embed(title='There is no portfolio named {}'.format(portfolioName), color=0x000000)
     await ctx.send(embed = msg)
 
 bot.run(config.TOKEN)

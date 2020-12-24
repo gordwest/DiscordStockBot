@@ -20,6 +20,7 @@ async def help(ctx):
     msg.add_field(name="!add <stock symbol>", value='Add a stock to your portfolio', inline=False)
     msg.add_field(name="!remove <stock symbol>", value='Remove a stock from your portfolio', inline=False)
     msg.add_field(name="!view <portfolio name>", value='Display contents of a portfolio', inline=False)
+    msg.add_field(name="!all", value='Display all current portfolios', inline=False)
     await ctx.send(embed = msg)
 
 @bot.command()
@@ -128,12 +129,15 @@ async def remove(ctx, stockSymbol):
     await ctx.send(embed = msg)
 
 @bot.command()
-async def view(ctx, portfolioName): #*** Need to check if portfolio exists before saying it is empty!
+async def view(ctx, portfolioName=''): 
     """Display the contents of a given portfolio
     params
         portfolioName: string - name of portfolio to query
     """
-    results = searchPortfolio(name) # search for portfolio name
+    if portfolioName == '': # use authors portfolio is none is specified
+        portfolioName = searchPortfolio(ctx.author)[0][0] 
+
+    results = searchPortfolio(portfolioName) # search for portfolio name
     if len(results) == 1:
         stocks = openPortfolio(portfolioName) # query stocks from table
         if len(stocks) > 0:
@@ -143,7 +147,7 @@ async def view(ctx, portfolioName): #*** Need to check if portfolio exists befor
         else:
             msg = discord.Embed(title='This portfolio is emtpy!', color=0x000000)
     else: # portfolio doesn't exist
-        msg = discord.Embed(title='There is no portfolio named {}'.format(portfolioName), color=0x000000)
+        msg = discord.Embed(title="There is no portfolio named '{}'".format(portfolioName), color=0x000000)
     await ctx.send(embed = msg)
 
 bot.run(config.TOKEN)

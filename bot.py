@@ -3,7 +3,7 @@ from discord.ext import commands
 from stocksAPI import currencyFormat, getStockData, stockSearch
 from sql import addPortfolio, getAllPortfolios, deletePortfolio, searchPortfolio, addStock, checkStock, openPortfolio, removeStock, emptyPortfolio
 
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix='?')
 bot.remove_command('help')
 
 @bot.event
@@ -14,13 +14,13 @@ async def on_ready():
 async def help(ctx):
     """Help function to list all bot commands"""
     msg = discord.Embed(title='Commands', color=0xC0C0C0)
-    msg.add_field(name="!search <search keyword>", value='Stock overview', inline=False)
-    msg.add_field(name="!create <portfolio name>", value='Create a portfolio', inline=False)
-    msg.add_field(name="!delete <portfolio name>", value='Delete your portfolio', inline=False)
-    msg.add_field(name="!add <stock symbol>", value='Add a stock to your portfolio', inline=False)
-    msg.add_field(name="!remove <stock symbol>", value='Remove a stock from your portfolio', inline=False)
-    msg.add_field(name="!view <portfolio name>", value='Display contents of a portfolio', inline=False)
-    msg.add_field(name="!all", value='Display all current portfolios', inline=False)
+    msg.add_field(name="?search <search keyword>", value='Stock overview', inline=False)
+    msg.add_field(name="?create <portfolio name>", value='Create a portfolio', inline=False)
+    msg.add_field(name="?delete <portfolio name>", value='Delete your portfolio', inline=False)
+    msg.add_field(name="?add <stock symbol>", value='Add a stock to your portfolio', inline=False)
+    msg.add_field(name="?remove <stock symbol>", value='Remove a stock from your portfolio', inline=False)
+    msg.add_field(name="?view <portfolio name>", value='Display contents of a portfolio', inline=False)
+    msg.add_field(name="?all", value='Display all current portfolios', inline=False)
     await ctx.send(embed = msg)
 
 @bot.command()
